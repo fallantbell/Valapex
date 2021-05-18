@@ -16,4 +16,8 @@ public class readytoroomscript : NetworkBehaviour
         // Debug.Log("receive");
         countdown.SetText("Game Start:"+number.ToString());
     }
+    [ClientRpc]
+    public void Rpchiddenreadyui(){
+        gameObject.SetActive(false);
+    }
 }
