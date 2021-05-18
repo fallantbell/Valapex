@@ -152,7 +152,7 @@ public class playerscript : NetworkBehaviour
         List<GameObject> allplayerlist=allplayer.GetComponent<allplayer>().allplayerlist;
 
         GameObject ready=GameObject.Find("readytoroom");
-        ready.SetActive(false); //準備UI 隱藏
+        ready.GetComponent<readytoroomscript>().Rpchiddenreadyui();  //準備UI 隱藏
 
         foreach(var players in allplayerlist){
             players.GetComponent<playerscript>().Rpcplayerspawn(); //每個client出生在重生點
