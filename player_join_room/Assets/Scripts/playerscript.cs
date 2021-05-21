@@ -21,6 +21,7 @@ public class playerscript : NetworkBehaviour
 
     [SyncVar(hook = nameof(colornamechange))]
     private Color playernamecolor;
+    GunSystem gunSystem;
     private void playernamechange(string oldstr, string newstr){
         nametext.text=newstr;
         Debug.Log(nametext.text);
@@ -36,6 +37,10 @@ public class playerscript : NetworkBehaviour
     void Start()
     {
         if(!isLocalPlayer) return;
+
+        // gunSystem = gameObject.GetComponent<GunSystem>();
+        // gunSystem.InitializeWeapons();
+
         floatinginfo.transform.localPosition=new Vector3(x:-2.29f , y:0.11f , z:3f);
         floatinginfo.transform.localScale=new Vector3(x:1f , y:1f , z:1f);
 
