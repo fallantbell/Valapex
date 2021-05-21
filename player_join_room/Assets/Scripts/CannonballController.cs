@@ -14,11 +14,11 @@ public class CannonballController : NetworkBehaviour
 	void Start ()
 	{
 		//初始子彈傷害
-		if(gameObject.name=="rifle_bullet"){      //   <==================根據不同槍起始不同子彈傷害
-			bulletdamage=10;
+		if(gameObject.name=="Rifle"){      //   <==================根據不同槍起始不同子彈傷害
+			bulletdamage=34;
 		}
-		else if(gameObject.name=="sniper_bullet"){
-			bulletdamage=10;
+		else if(gameObject.name=="AssaultRifle"){
+			bulletdamage=15;
 		}
 
 
@@ -38,13 +38,13 @@ public class CannonballController : NetworkBehaviour
 
 	// Update is called once per frame
 	// 每顆球的生命週期為maxAge秒，超過就刪除
-	// [ServerCallback]
-	// void Update () 
-	// {	
-	// 	age += Time.deltaTime;
-	// 	if( age > maxAge )
-	// 	{	
-	// 		NetworkServer.Destroy(gameObject);
-	// 	}
-	// }
+	[ServerCallback]
+	void Update () 
+	{	
+		age += Time.deltaTime;
+		if( age > maxAge )
+		{	
+			NetworkServer.Destroy(gameObject);
+		}
+	}
 }
