@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityStandardAssets.Characters.FirstPerson;
 using UnityEngine;
 using Mirror;
 using UnityEngine.UI;
@@ -21,6 +22,16 @@ public class playerscript : NetworkBehaviour
 
     [SyncVar(hook = nameof(colornamechange))]
     private Color playernamecolor;
+    private FirstPersonController fpsController;
+	private Transform playerCameraTransform;
+	private Camera playerCamera;
+	private MouseLook mouseLook;
+	private GunSystem gunSystem;
+	private WeaponManager weaponManager;
+	private AudioListener playerAudioListener;
+
+	private GameObject[] gameObjects;
+
     private void playernamechange(string oldstr, string newstr){
         nametext.text=newstr;
         Debug.Log(nametext.text);
@@ -35,39 +46,60 @@ public class playerscript : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if(!isLocalPlayer) return;
+        if(!isLocalPlayer) {
+            fpsController = GetComponent<FirstPersonController>();
+            gunSystem = GetComponent<GunSystem>();
+			weaponManager = GetComponent<WeaponManager>();
+			playerCamera = transform.Find("CameraMouseLook").GetComponentInChildren<Camera>();
+			mouseLook = playerCamera.GetComponentInChildren<MouseLook>();
+            if(mouseLook)
+				mouseLook.enabled = false;
 
-        floatinginfo.transform.localPosition=new Vector3(x:-2.29f , y:0.11f , z:3f);
-        floatinginfo.transform.localScale=new Vector3(x:1f , y:1f , z:1f);
+            if (fpsController) {
+				fpsController.enabled = false;
+			}
+			if(playerCamera){
+				playerCamera.enabled = false;
+			}
 
-        healthbar.transform.localPosition=new Vector3(x:-2.47f , y:-0.545f , z:2.67f);
-        healthbar.transform.localScale=new Vector3(x:-0.027536f , y:0.01f , z:0.01f);
+        }
+        else{
+            gameObject.name = "ME"; //將localplayer 名稱設為ME
 
-        GameObject gameui=GameObject.Find("GameUI"); //隱藏起始介面
-        gameui.SetActive(false);
+            floatinginfo.transform.localPosition=new Vector3(x:-2.29f , y:0.11f , z:3f);
+            floatinginfo.transform.localScale=new Vector3(x:1f , y:1f , z:1f);
 
-        GameObject readyUI=GameObject.Find("readytoroom"); //啟動準備介面
-        readyUI.SetActive(true);
+            healthbar.transform.localPosition=new Vector3(x:-2.47f , y:-0.545f , z:2.67f);
+            healthbar.transform.localScale=new Vector3(x:-0.027536f , y:0.01f , z:0.01f);
 
-        GameObject g=GameObject.Find("playerinfoobject");
-        savename svn=g.GetComponent<savename>();
-        string tmpname = svn.username+"("+svn.character+")";
+            GameObject gameui=GameObject.Find("GameUI"); //隱藏起始介面
+            gameui.SetActive(false);
 
-        GameObject localui=GameObject.Find("localplayerUI"); //啟動玩家介面
-        localui.SetActive(true);
-        
-        initlocalui(); //初始玩家介面
+            GameObject readyUI=GameObject.Find("readytoroom"); //啟動準備介面
+            readyUI.SetActive(true);
 
-        var tmpcolor= new Color
-        (
-            r: Random.Range(0f,1f),
-            g: Random.Range(0f,1f),
-            b: Random.Range(0f,1f),
-            a: 1
-        ); 
-        // Debug.Log("start:"+gameObject.name);
-        Cmdplayercount();
-        Cmdsetupplayername(tmpname,tmpcolor);
+            GameObject g=GameObject.Find("playerinfoobject");
+            savename svn=g.GetComponent<savename>();
+            string tmpname = svn.username+"("+svn.character+")";
+
+            GameObject localui=GameObject.Find("localplayerUI"); //啟動玩家介面
+            localui.SetActive(true);
+            
+            initlocalui(); //初始玩家介面
+
+            var tmpcolor= new Color
+            (
+                r: Random.Range(0f,1f),
+                g: Random.Range(0f,1f),
+                b: Random.Range(0f,1f),
+                a: 1
+            ); 
+            // Debug.Log("start:"+gameObject.name);
+            Cmdplayercount();
+            Cmdsetupplayername(tmpname,tmpcolor);
+        }
+        GameObject gplayer=GameObject.Find("allplayer");
+		gplayer.GetComponent<allplayer>().allplayerlist.Add(gameObject); //將新增的player存入playerlist
     }
     // Update is called once per frame
     void Update()
