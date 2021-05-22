@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class NewBehaviourScript : MonoBehaviour
 {
-    // Start is called before the first frame update
+    Camera fpsCam;
     void Start()
     {
+        fpsCam = GetComponentInParent<Camera>();
         
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        
+        transform.localRotation = Quaternion.Euler(fpsCam.transform.forward);
     }
 }

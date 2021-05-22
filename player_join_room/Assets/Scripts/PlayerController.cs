@@ -37,19 +37,6 @@ public class PlayerController: NetworkBehaviour
 			if(mouseLook)
 				mouseLook.enabled = false;
 
-			// if(weaponManager){
-			// 	weaponManager.enabled = false;
-			// }
-				
-
-			// if(gunSystem)
-			// 	gunSystem.enabled = false;
-
-			
-			// foreach(GunSystem gun in gunSystems){
-			// 	if(gun)
-			// 		gun.enabled = false;
-			// }
 			// ------------------------------------------------------------------------------------------------------------------------
 			if (fpsController) {
 				fpsController.enabled = false;
