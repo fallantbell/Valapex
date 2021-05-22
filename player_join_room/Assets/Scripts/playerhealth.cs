@@ -23,5 +23,9 @@ public class playerhealth : NetworkBehaviour
     }
     public void changehealth(int oldValue,int newValue){              //改變血條
         healthbar.sizeDelta=new Vector2(newValue,healthbar.sizeDelta.y);
+        if(isLocalPlayer){
+            RectTransform localhealthbar=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(3).gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<RectTransform>();
+            localhealthbar.sizeDelta=new Vector2(newValue,localhealthbar.sizeDelta.y);
+        }
     }
 }
