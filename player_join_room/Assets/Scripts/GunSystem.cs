@@ -45,13 +45,19 @@ public class GunSystem : NetworkBehaviour
         }
         
     }
-    private IEnumerator ShootingAnimation(){
+    [Command]
+    void CmdShootingAnimation(){
+        RpcShootingAnimation();
+    }
+    [ClientRpc]
+    void RpcShootingAnimation(){
+        ShootingAnimation();
+    }
+    private void ShootingAnimation(){
         shooting = true;
         muzzleFlash.Play();
         bulletTrail.Play();
         gunShots.Play();
-        yield return null;
-
     }
     [Command]
     public void CmdSpawnBullet () 
@@ -66,6 +72,7 @@ public class GunSystem : NetworkBehaviour
         // Debug.Log(gunType.name);
 
         //Let's position it at the player
+        instance.transform.localRotation = Quaternion.Euler(fpsCam.transform.forward);
         instance.transform.position = gunType.transform.Find("AttackPoint").position;
         instance.GetComponent<Rigidbody> ().AddForce (fpsCam.transform.forward * power);
         //
@@ -74,7 +81,10 @@ public class GunSystem : NetworkBehaviour
     }
     
     private void Shoot(){
-        if(!isLocalPlayer) return;
+        
+        if(!isLocalPlayer){
+            return;
+        }
 
         readyToShoot = false;
         
@@ -85,7 +95,6 @@ public class GunSystem : NetworkBehaviour
         //Calculate direction with spread
         Vector3 spreadDirection = fpsCam.transform.forward + new Vector3(xSpread, ySpread, 0);
         
-        Debug.Log("shoot");
         //RayCast
         // if(Physics.Raycast(fpsCam.transform.position, spreadDirection, out hit, range)){
         //     Debug.Log(hit.collider.name);
@@ -97,8 +106,8 @@ public class GunSystem : NetworkBehaviour
         
         recoil.Fire();
         camRecoil.Fire();
-        StartCoroutine(ShootingAnimation());
 
+        CmdShootingAnimation();
         CmdSpawnBullet();
 
         bulletLeft -= 1;
@@ -130,9 +139,9 @@ public class GunSystem : NetworkBehaviour
         gunHolder=gameObject.transform.GetChild(3).transform.GetChild(0).transform.GetChild(1).gameObject;
         // gunHolder = GameObject.Find("CameraMouseLook/MainCamera/GunHolder");
         Debug.Log(gunHolder.name);
-        weaponManager = GetComponent<WeaponManager>();
-        fpsCam = transform.Find("CameraMouseLook").GetComponentInChildren<Camera>();
-        camRecoil = transform.Find("CameraMouseLook").GetComponent<CamRecoil>();
+        weaponManager = gameObject.GetComponent<WeaponManager>();
+        fpsCam = gameObject.transform.GetChild(3).gameObject.GetComponentInChildren<Camera>();
+        camRecoil = gameObject.transform.Find("CameraMouseLook").gameObject.GetComponent<CamRecoil>();
     }
     public void InitializeWeapons(){
         gunType = gunHolder.transform.GetChild(weaponManager.index).gameObject;

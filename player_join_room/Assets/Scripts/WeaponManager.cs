@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
-
-public class WeaponManager : MonoBehaviour
+public class WeaponManager : NetworkBehaviour
 {
     [SerializeField]
     private GameObject[] weapons;
@@ -14,9 +14,6 @@ public class WeaponManager : MonoBehaviour
     GunSystem gunSystem;
     void Start()
     {
-        // if(isLocalPlayer)
-        //     return;
-        
         gunSystem = GetComponent<GunSystem>();
         // weapons = GetComponentsInChildren<GameObject>();
         // Debug.Log(weapons.Length);
@@ -30,8 +27,21 @@ public class WeaponManager : MonoBehaviour
         weapons[0].SetActive(true);
         // NetworkServer.Spawn(weapons[0]);
     }
-    
+    [Command]
+    void CmdSwitchWeapon(int index){
+
+        Debug.Log("Tell the server");
+        RpcSwitchWeapon(index);
+        // StartCoroutine(SwitchAfterDelay(index));
+    }
+    [ClientRpc]
+    void RpcSwitchWeapon(int index){
+        Debug.Log("Tell the clients");
+        SwitchWeapons(index);
+    }
     private void SwitchWeapons(int index){
+        Debug.Log ("Equipping weapons for = " + this.name);
+
         for(int i = 0; i < weapons.Length; i++)
             weapons[i].SetActive(false);
 
@@ -40,17 +50,20 @@ public class WeaponManager : MonoBehaviour
 
         
         weapons[index].SetActive(true);
+        gunSystem.InitializeWeapons();
         // NetworkServer.Spawn(weapons[index]);
     }
     private IEnumerator SwitchAfterDelay(int index){
         isSwitching = true;
+
         yield return new WaitForSeconds(switchDelay);
-        SwitchWeapons(index);
-        
-        gunSystem.InitializeWeapons();
+        CmdSwitchWeapon(index);
+
+        if(isLocalPlayer)
+            SwitchWeapons(index);
+
         isSwitching = false;
     }
-    // Update is called once per frame
 
     void FixedUpdate()
     {
@@ -58,7 +71,10 @@ public class WeaponManager : MonoBehaviour
             index++;
             if(index >= maxWeaponHold)
                 index = 0;
+
             StartCoroutine(SwitchAfterDelay(index));
+            // isSwitching = true;
+            // Invoke("SwitchAfterDelay(index)", switchDelay);
             Debug.Log(index);
         }   
     }
