@@ -22,6 +22,7 @@ public class playerscript : NetworkBehaviour
 
     [SyncVar(hook = nameof(colornamechange))]
     private Color playernamecolor;
+<<<<<<< Updated upstream
     private FirstPersonController fpsController;
 	private Transform playerCameraTransform;
 	private Camera playerCamera;
@@ -32,6 +33,9 @@ public class playerscript : NetworkBehaviour
 
 	private GameObject[] gameObjects;
 
+=======
+    GunSystem gunSystem;
+>>>>>>> Stashed changes
     private void playernamechange(string oldstr, string newstr){
         nametext.text=newstr;
         Debug.Log(nametext.text);
@@ -46,6 +50,7 @@ public class playerscript : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
+<<<<<<< Updated upstream
         if(!isLocalPlayer) {
             fpsController = GetComponent<FirstPersonController>();
             gunSystem = GetComponent<GunSystem>();
@@ -61,6 +66,24 @@ public class playerscript : NetworkBehaviour
 			if(playerCamera){
 				playerCamera.enabled = false;
 			}
+=======
+        if(!isLocalPlayer) return;
+
+        // gunSystem = gameObject.GetComponent<GunSystem>();
+        // gunSystem.InitializeWeapons();
+
+        floatinginfo.transform.localPosition=new Vector3(x:-2.29f , y:0.11f , z:3f);
+        floatinginfo.transform.localScale=new Vector3(x:1f , y:1f , z:1f);
+
+        healthbar.transform.localPosition=new Vector3(x:-2.47f , y:-0.545f , z:2.67f);
+        healthbar.transform.localScale=new Vector3(x:-0.027536f , y:0.01f , z:0.01f);
+
+        GameObject gameui=GameObject.Find("GameUI"); //隱藏起始介面
+        gameui.SetActive(false);
+
+        GameObject readyUI=GameObject.Find("readytoroom"); //啟動準備介面
+        readyUI.SetActive(true);
+>>>>>>> Stashed changes
 
         }
         else{

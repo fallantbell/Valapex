@@ -45,6 +45,7 @@ public class GunSystem : NetworkBehaviour
         }
         
     }
+<<<<<<< Updated upstream
     [Command]
     void CmdShootingAnimation(){
         RpcShootingAnimation();
@@ -54,10 +55,18 @@ public class GunSystem : NetworkBehaviour
         ShootingAnimation();
     }
     private void ShootingAnimation(){
+=======
+    private IEnumerator ShootingAnimation(){
+>>>>>>> Stashed changes
         shooting = true;
         muzzleFlash.Play();
         bulletTrail.Play();
         gunShots.Play();
+<<<<<<< Updated upstream
+=======
+        yield return null;
+
+>>>>>>> Stashed changes
     }
     [Command]
     public void CmdSpawnBullet () 
@@ -72,7 +81,10 @@ public class GunSystem : NetworkBehaviour
         // Debug.Log(gunType.name);
 
         //Let's position it at the player
+<<<<<<< Updated upstream
         instance.transform.localRotation = Quaternion.Euler(fpsCam.transform.forward);
+=======
+>>>>>>> Stashed changes
         instance.transform.position = gunType.transform.Find("AttackPoint").position;
         instance.GetComponent<Rigidbody> ().AddForce (fpsCam.transform.forward * power);
         //
@@ -81,10 +93,14 @@ public class GunSystem : NetworkBehaviour
     }
     
     private void Shoot(){
+<<<<<<< Updated upstream
         
         if(!isLocalPlayer){
             return;
         }
+=======
+        if(!isLocalPlayer) return;
+>>>>>>> Stashed changes
 
         readyToShoot = false;
         
@@ -95,6 +111,10 @@ public class GunSystem : NetworkBehaviour
         //Calculate direction with spread
         Vector3 spreadDirection = fpsCam.transform.forward + new Vector3(xSpread, ySpread, 0);
         
+<<<<<<< Updated upstream
+=======
+        Debug.Log("shoot");
+>>>>>>> Stashed changes
         //RayCast
         // if(Physics.Raycast(fpsCam.transform.position, spreadDirection, out hit, range)){
         //     Debug.Log(hit.collider.name);
@@ -106,8 +126,13 @@ public class GunSystem : NetworkBehaviour
         
         recoil.Fire();
         camRecoil.Fire();
+<<<<<<< Updated upstream
 
         CmdShootingAnimation();
+=======
+        StartCoroutine(ShootingAnimation());
+
+>>>>>>> Stashed changes
         CmdSpawnBullet();
 
         bulletLeft -= 1;
@@ -139,9 +164,15 @@ public class GunSystem : NetworkBehaviour
         gunHolder=gameObject.transform.GetChild(3).transform.GetChild(0).transform.GetChild(1).gameObject;
         // gunHolder = GameObject.Find("CameraMouseLook/MainCamera/GunHolder");
         Debug.Log(gunHolder.name);
+<<<<<<< Updated upstream
         weaponManager = gameObject.GetComponent<WeaponManager>();
         fpsCam = gameObject.transform.GetChild(3).gameObject.GetComponentInChildren<Camera>();
         camRecoil = gameObject.transform.Find("CameraMouseLook").gameObject.GetComponent<CamRecoil>();
+=======
+        weaponManager = GetComponent<WeaponManager>();
+        fpsCam = transform.Find("CameraMouseLook").GetComponentInChildren<Camera>();
+        camRecoil = transform.Find("CameraMouseLook").GetComponent<CamRecoil>();
+>>>>>>> Stashed changes
     }
     public void InitializeWeapons(){
         gunType = gunHolder.transform.GetChild(weaponManager.index).gameObject;
