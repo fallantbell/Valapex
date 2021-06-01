@@ -4,6 +4,7 @@ using UnityStandardAssets.Characters.FirstPerson;
 using UnityEngine;
 using Mirror;
 using UnityEngine.UI;
+using TMPro;
 public class playerscript : NetworkBehaviour
 {
     public GameObject floatinginfo;
@@ -89,11 +90,11 @@ public class playerscript : NetworkBehaviour
         else{
             gameObject.name = "ME"; //將localplayer 名稱設為ME
 
-            floatinginfo.transform.localPosition=new Vector3(x:-2.29f , y:0.11f , z:3f);
-            floatinginfo.transform.localScale=new Vector3(x:1f , y:1f , z:1f);
+            // floatinginfo.transform.localPosition=new Vector3(x:-2.29f , y:0.11f , z:3f);
+            // floatinginfo.transform.localScale=new Vector3(x:1f , y:1f , z:1f);
 
-            healthbar.transform.localPosition=new Vector3(x:-2.47f , y:-0.545f , z:2.67f);
-            healthbar.transform.localScale=new Vector3(x:-0.027536f , y:0.01f , z:0.01f);
+            // healthbar.transform.localPosition=new Vector3(x:-2.47f , y:-0.545f , z:2.67f);
+            // healthbar.transform.localScale=new Vector3(x:-0.027536f , y:0.01f , z:0.01f);
 
             GameObject gameui=GameObject.Find("GameUI"); //隱藏起始介面
             gameui.SetActive(false);
@@ -153,6 +154,7 @@ public class playerscript : NetworkBehaviour
     }
 
     private void initlocalui(){  //初始玩家介面
+        // 初始技能
         GameObject skill=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(1).gameObject;
         GameObject skill1=skill.transform.GetChild(0).gameObject;
         GameObject skill2=skill.transform.GetChild(1).gameObject;
@@ -182,6 +184,10 @@ public class playerscript : NetworkBehaviour
             skill1.GetComponent<Image>().sprite=hunter_skill1;
             skill2.GetComponent<Image>().sprite=hunter_skill2;
         }
+
+        // 初始玩家名稱
+        GameObject name=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(2).gameObject;
+        name.GetComponent<TMP_Text>().text=playerinfo.GetComponent<savename>().username;
     }
 
     [Command]
