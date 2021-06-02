@@ -2,14 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityStandardAssets.Characters.FirstPerson;
 
 public class skillscript : MonoBehaviour
 {
     private int skill1tmp=-1,skill2tmp=-1;
     private int skill1_i,skill2_i;
-    private float skill1_f,skill2_f;
+    private float skill1_f,skill2_f,teleport_f;
     bool skill1_flag=false;
     bool skill2_flag=false;
+    bool teleportflag=false;
     public int skill1waittime=4;
     public int skill2waittime=5;
     public RectTransform skill1cool;
@@ -61,11 +63,30 @@ public class skillscript : MonoBehaviour
                 skill2_flag=false;
             }
         }
+        teleport_f+=Time.deltaTime;
+        if(teleport_f>0.3 && teleportflag==true){
+            GameObject me=GameObject.Find("ME");
+            me.GetComponent<FirstPersonController>().is_skill=false;
+            me.GetComponent<playerscript>().Cmdghost(0);
+            teleportflag=false;
+        }
     }
     private void useskill1(){
 
     }
     private void useskill2(){
-
+        GameObject playerinfo=GameObject.Find("playerinfoobject");
+        string character=playerinfo.GetComponent<savename>().character;
+        GameObject me=GameObject.Find("ME");
+        if(character=="assasins"){
+            me.GetComponent<FirstPersonController>().is_skill=true;
+            me.GetComponent<playerscript>().Cmdghost(1); // 同步殘影到所有client
+            teleport_f=0;
+            teleportflag=true;
+        }
     }
 }
+// server -> server 正常
+// server -> client 正常
+// client -> client 不正常
+// client -> server 不正常

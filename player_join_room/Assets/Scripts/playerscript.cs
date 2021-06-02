@@ -208,4 +208,19 @@ public class playerscript : NetworkBehaviour
             cc.enabled=true;
         }
     }
+
+    [Command]
+    public void Cmdghost(int num){
+        Rpcghost(num);
+    }
+
+    [ClientRpc]
+    public void Rpcghost(int num){
+        if(num==1){   // 開啟殘影
+            gameObject.GetComponent<GhostShadow>().enabled=true;
+        }
+        else if(num==0){  // 關閉殘影
+            gameObject.GetComponent<GhostShadow>().enabled=false;
+        }
+    }
 }
