@@ -72,7 +72,12 @@ public class skillscript : MonoBehaviour
         }
     }
     private void useskill1(){
-
+        GameObject playerinfo=GameObject.Find("playerinfoobject");
+        string character=playerinfo.GetComponent<savename>().character;
+        GameObject me=GameObject.Find("ME");
+        if(character=="assasins"){ // 分身
+            me.GetComponent<playerscript>().Cmdduplicate(); // 同步分身到所有client
+        }
     }
     private void useskill2(){
         GameObject playerinfo=GameObject.Find("playerinfoobject");

@@ -223,4 +223,16 @@ public class playerscript : NetworkBehaviour
             gameObject.GetComponent<GhostShadow>().enabled=false;
         }
     }
+    [Command]
+    public void Cmdduplicate(){
+        GameObject instance = Instantiate (Resources.Load ("player_clone")) as GameObject;
+        instance.name = "player_clone";
+        instance.transform.localRotation = gameObject.transform.localRotation;
+        instance.transform.position = gameObject.transform.position+transform.forward*2;
+
+        instance.GetComponent<player_clone_control>().heal.sizeDelta=new Vector2(gameObject.GetComponent<playerhealth>().currenthealth,instance.GetComponent<player_clone_control>().heal.sizeDelta.y);
+        instance.GetComponent<player_clone_control>().nametext.text=nametext.text;
+
+        NetworkServer.Spawn (instance);
+    }
 }
