@@ -192,8 +192,8 @@ public class playerscript : NetworkBehaviour
     }
 
     private void initlocalui(){  //初始玩家介面
-        GameObject skill=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(1).gameObject;
-        GameObject playerimage=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(0).gameObject;
+        GameObject skill=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(2).gameObject;
+        GameObject playerimage=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(1).gameObject;
         GameObject skill1=skill.transform.GetChild(0).gameObject;
         GameObject skill2=skill.transform.GetChild(1).gameObject;
         GameObject playerinfo=GameObject.Find("playerinfoobject");
@@ -232,7 +232,7 @@ public class playerscript : NetworkBehaviour
         }
 
         // 初始玩家名稱
-        GameObject name=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(2).gameObject;
+        GameObject name=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(3).gameObject;
         name.GetComponent<TMP_Text>().text=playerinfo.GetComponent<savename>().username;
     }
 
