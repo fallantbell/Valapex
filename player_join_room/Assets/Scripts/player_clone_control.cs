@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-public class player_clone_control : MonoBehaviour
+using Mirror;
+public class player_clone_control : NetworkBehaviour
 {
     public GameObject floatinginfo;
     public GameObject healthbar;
@@ -16,6 +17,11 @@ public class player_clone_control : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // 因為只有server的資訊正確
+        // 所以另外做clientrpc同步名稱 血量
+        if(isServer){ 
+            Rpcsyncinfo(nametext.text,heal.sizeDelta);
+        }
         age=0.0f;
     }
 
@@ -34,5 +40,11 @@ public class player_clone_control : MonoBehaviour
         if(age>maxage){
             Destroy(gameObject);
         }
+    }
+
+    [ClientRpc]
+    public void Rpcsyncinfo(string tex,Vector2 v2){
+        nametext.text=tex;
+        heal.sizeDelta=v2;
     }
 }

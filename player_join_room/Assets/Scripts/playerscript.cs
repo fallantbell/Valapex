@@ -240,7 +240,7 @@ public class playerscript : NetworkBehaviour
         GameObject ready=GameObject.Find("readytoroom");
         ready.GetComponent<readytoroomscript>().Rpcchangenowplayer(me.GetComponent<playerscript>().playernumber); //更新人數給每個client
 
-        if(me.GetComponent<playerscript>().playernumber==2){ //當人數到達上限 倒數計時
+        if(me.GetComponent<playerscript>().playernumber==4){ //當人數到達上限 倒數計時
             me.GetComponent<playerscript>().readyflag=true;    
         }
         
