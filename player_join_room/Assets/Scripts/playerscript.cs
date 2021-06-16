@@ -193,6 +193,7 @@ public class playerscript : NetworkBehaviour
 
     private void initlocalui(){  //初始玩家介面
         GameObject skill=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(1).gameObject;
+        GameObject playerimage=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(0).gameObject;
         GameObject skill1=skill.transform.GetChild(0).gameObject;
         GameObject skill2=skill.transform.GetChild(1).gameObject;
         GameObject playerinfo=GameObject.Find("playerinfoobject");
@@ -200,26 +201,34 @@ public class playerscript : NetworkBehaviour
         if(character=="wizzard"){
             Sprite wizzard_skill1=Resources.Load<Sprite>("image/wizzard_skill1");
             Sprite wizzard_skill2=Resources.Load<Sprite>("image/wizzard_skill2");
+            Sprite wizard_small=Resources.Load<Sprite>("image/wizard_small");
             skill1.GetComponent<Image>().sprite=wizzard_skill1;
             skill2.GetComponent<Image>().sprite=wizzard_skill2;
+            playerimage.GetComponent<Image>().sprite=wizard_small;
         }
         else if(character=="assistant"){
             Sprite assistant_skill1=Resources.Load<Sprite>("image/assistant_skill1");
             Sprite assistant_skill2=Resources.Load<Sprite>("image/assistant_skill2");
+            Sprite assistant_small=Resources.Load<Sprite>("image/assistant_small");
             skill1.GetComponent<Image>().sprite=assistant_skill1;
             skill2.GetComponent<Image>().sprite=assistant_skill2;
+            playerimage.GetComponent<Image>().sprite=assistant_small;
         }
         else if(character=="assasins"){
             Sprite assasins_skill1=Resources.Load<Sprite>("image/assasins_skill1");
             Sprite assasins_skill2=Resources.Load<Sprite>("image/assasins_skill2");
+            Sprite assasins_small=Resources.Load<Sprite>("image/assasins_small");
             skill1.GetComponent<Image>().sprite=assasins_skill1;
             skill2.GetComponent<Image>().sprite=assasins_skill2;
+            playerimage.GetComponent<Image>().sprite=assasins_small;
         }
         else if(character=="hunter"){
             Sprite hunter_skill1=Resources.Load<Sprite>("image/hunter_skill1");
             Sprite hunter_skill2=Resources.Load<Sprite>("image/hunter_skill2");
+            Sprite hunter_small=Resources.Load<Sprite>("image/hunter_small");
             skill1.GetComponent<Image>().sprite=hunter_skill1;
             skill2.GetComponent<Image>().sprite=hunter_skill2;
+            playerimage.GetComponent<Image>().sprite=hunter_small;
         }
 
         // 初始玩家名稱
