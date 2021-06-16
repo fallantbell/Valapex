@@ -13,6 +13,8 @@ public class playerscript : NetworkBehaviour
     private Material playermaterialclone;
     public int playernumber=0;
 
+    public List<int> characternum;
+
     private float time_f=0;
     private int time_i=0; //用來計算準備倒數計時時間
     private int timetmp=-1;
@@ -88,6 +90,8 @@ public class playerscript : NetworkBehaviour
             
             initlocalui(); //初始玩家介面
 
+            
+
             var tmpcolor= new Color
             (
                 r: Random.Range(0f,1f),
@@ -101,6 +105,8 @@ public class playerscript : NetworkBehaviour
         }
         GameObject gplayer=GameObject.Find("allplayer");
 		gplayer.GetComponent<allplayer>().allplayerlist.Add(gameObject); //將新增的player存入playerlist
+
+        initcharacter(); //初始玩家角色
     }
     // Update is called once per frame
     void Update()
@@ -128,6 +134,45 @@ public class playerscript : NetworkBehaviour
                 }
             }
         }
+    }
+
+    private void initcharacter(){
+        GameObject playerinfo=GameObject.Find("playerinfoobject");
+        string character=playerinfo.GetComponent<savename>().character;
+        if(character=="wizzard"){
+            Cmdcharacter(6);
+        }
+        else if(character=="assistant"){
+        }
+        else if(character=="assasins"){
+            
+        }
+        else if(character=="hunter"){
+            Cmdcharacter(5);
+        }
+    }
+
+    [Command]
+    public void Cmdcharacter(int num){
+        GameObject me=GameObject.Find("ME");
+        me.GetComponent<playerscript>().characternum.Add(num); //將每個玩家角色存入 me 的characternum 陣列
+        GameObject allplayer=GameObject.Find("allplayer");
+        List<GameObject> allplayerlist=allplayer.GetComponent<allplayer>().allplayerlist; 
+
+        int tmp=0;
+        foreach(var players in allplayerlist){ // 對每個玩家做clientrpc 通知每個玩家的角色
+            players.GetComponent<playerscript>().Rpccharacter(me.GetComponent<playerscript>().characternum[tmp]);
+            tmp+=1;
+        }
+
+        // Rpccharacter(num);
+    }
+
+    [ClientRpc]
+    public void Rpccharacter(int num){
+        // Debug.Log("name:"+gameObject.name);
+        // Debug.Log("number:"+num);
+        gameObject.transform.GetChild(num).gameObject.SetActive(true);
     }
 
     private void initlocalui(){  //初始玩家介面
