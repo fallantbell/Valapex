@@ -35,6 +35,7 @@ public class playerscript : NetworkBehaviour
 
 	private GameObject[] gameObjects;
 
+    public Animator anim;
     private void playernamechange(string oldstr, string newstr){
         nametext.text=newstr;
         Debug.Log(nametext.text);
@@ -143,9 +144,10 @@ public class playerscript : NetworkBehaviour
             Cmdcharacter(6);
         }
         else if(character=="assistant"){
+            Cmdcharacter(7);
         }
         else if(character=="assasins"){
-            
+            Cmdcharacter(8);
         }
         else if(character=="hunter"){
             Cmdcharacter(5);
@@ -173,6 +175,20 @@ public class playerscript : NetworkBehaviour
         // Debug.Log("name:"+gameObject.name);
         // Debug.Log("number:"+num);
         gameObject.transform.GetChild(num).gameObject.SetActive(true);
+
+        if(num==5){
+            anim.avatar=Resources.Load<Avatar>("hunter");
+        }
+        else if(num==6){
+            anim.avatar=Resources.Load<Avatar>("wizard");
+        }
+        else if(num==7){
+            anim.avatar=Resources.Load<Avatar>("assistant");
+        }
+        else if(num==8){
+            anim.avatar=Resources.Load<Avatar>("assasins");
+        }
+        
     }
 
     private void initlocalui(){  //初始玩家介面

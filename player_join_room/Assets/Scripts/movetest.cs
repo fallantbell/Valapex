@@ -10,6 +10,13 @@ public class movetest : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // GameObject g=GameObject.Find("playerinfoobject");
+        // if(g.GetComponent<savename>().character=="hunter"){
+        //     anim=gameObject.transform.GetChild(5).gameObject.GetComponent<Animator>();
+        // }
+        // else if(g.GetComponent<savename>().character=="wizzard"){
+        //     anim=gameObject.transform.GetChild(6).gameObject.GetComponent<Animator>();
+        // }
         anim = GetComponent<Animator>();
     }
 
