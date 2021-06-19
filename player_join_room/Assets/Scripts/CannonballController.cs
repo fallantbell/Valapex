@@ -7,6 +7,9 @@ public class CannonballController : NetworkBehaviour
 	private float age;
 	public float maxAge = 1.0f;
 
+
+	public string damageperson=""; //子彈是誰設的
+
 	private int bulletdamage; //子彈傷害
 
 	// Use this for initialization
@@ -29,9 +32,10 @@ public class CannonballController : NetworkBehaviour
 	void OnCollisionEnter(Collision other)
 	{
 		if(!isServer) return;
+		// Debug.Log("damageperson"+damageperson);
 		Debug.Log("enter"+other.gameObject.name);
 		if (other.gameObject.tag == "Player") {
-			other.gameObject.GetComponent<playerhealth>().takedamage(bulletdamage); //  <================打到人 扣血
+			other.gameObject.GetComponent<playerhealth>().takedamage(bulletdamage,damageperson); //  <================打到人 扣血
 		}
 		NetworkServer.Destroy(gameObject);
 	}

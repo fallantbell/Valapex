@@ -35,7 +35,16 @@ public class playerscript : NetworkBehaviour
 
 	private GameObject[] gameObjects;
 
+    public int killnum; //擊殺數
+
     public Animator anim;
+
+    public void addkill(){
+        killnum+=1;
+        GameObject killtext=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(5).gameObject;
+        killtext.GetComponent<TMP_Text>().text="kill:"+killnum.ToString();
+    }
+
     private void playernamechange(string oldstr, string newstr){
         nametext.text=newstr;
         Debug.Log(nametext.text);
@@ -249,7 +258,7 @@ public class playerscript : NetworkBehaviour
         GameObject ready=GameObject.Find("readytoroom");
         ready.GetComponent<readytoroomscript>().Rpcchangenowplayer(me.GetComponent<playerscript>().playernumber); //更新人數給每個client
 
-        if(me.GetComponent<playerscript>().playernumber==4){ //當人數到達上限 倒數計時
+        if(me.GetComponent<playerscript>().playernumber==2){ //當人數到達上限 倒數計時
             me.GetComponent<playerscript>().readyflag=true;    
         }
         
