@@ -51,5 +51,8 @@ public class playerhealth : NetworkBehaviour
         if(isLocalPlayer){
             gameObject.GetComponent<playerscript>().addkill();
         }
+        else{
+            gameObject.GetComponent<playerscript>().synckill();
+        }
     }
 }

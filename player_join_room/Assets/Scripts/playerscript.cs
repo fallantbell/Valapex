@@ -21,7 +21,7 @@ public class playerscript : NetworkBehaviour
     bool readyflag=false; //用來判斷準備開始
 
     [SyncVar(hook = nameof(playernamechange))]
-    private string playername;
+    public string playername;
 
     [SyncVar(hook = nameof(colornamechange))]
     private Color playernamecolor;
@@ -43,6 +43,10 @@ public class playerscript : NetworkBehaviour
         killnum+=1;
         GameObject killtext=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(5).gameObject;
         killtext.GetComponent<TMP_Text>().text="kill:"+killnum.ToString();
+    }
+
+    public void synckill(){
+        killnum+=1;
     }
 
     private void playernamechange(string oldstr, string newstr){
@@ -116,7 +120,10 @@ public class playerscript : NetworkBehaviour
         GameObject gplayer=GameObject.Find("allplayer");
 		gplayer.GetComponent<allplayer>().allplayerlist.Add(gameObject); //將新增的player存入playerlist
 
-        initcharacter(); //初始玩家角色
+        if(isLocalPlayer){
+            initcharacter(); //初始玩家角色
+        }
+        
     }
     // Update is called once per frame
     void Update()
@@ -143,6 +150,21 @@ public class playerscript : NetworkBehaviour
                     readyflag=false;
                 }
             }
+        }
+        if(Input.GetKeyDown(KeyCode.Tab)){
+            GameObject allplayer=GameObject.Find("allplayer");
+            List<GameObject> allplayerlist=allplayer.GetComponent<allplayer>().allplayerlist; 
+
+            int tmp=0;
+            foreach(var players in allplayerlist){ 
+                if(players.name=="ME") continue;
+                GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.transform.GetChild(tmp).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().text="kill:"+players.GetComponent<playerscript>().killnum;
+                tmp+=1;
+            }
+            GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.SetActive(true);
+        }
+        if(Input.GetKeyUp(KeyCode.Tab)){
+            GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.SetActive(false);
         }
     }
 
@@ -198,6 +220,61 @@ public class playerscript : NetworkBehaviour
             anim.avatar=Resources.Load<Avatar>("assasins");
         }
         
+        if(isLocalPlayer){
+            GameObject allplayer=GameObject.Find("allplayer");
+            List<GameObject> allplayerlist=allplayer.GetComponent<allplayer>().allplayerlist; 
+
+            int tmp=0;
+            foreach(var players in allplayerlist){ 
+                Cmddebug(playername,players.GetComponent<playerscript>().playername);
+                if(players.name=="ME") continue;
+                string tmpname=players.GetComponent<playerscript>().playername;
+                string tmpname2="";
+                string character="";
+                bool flag=false;
+                
+                foreach(char c in tmpname){
+                    if(c=='('){
+                        flag=true;
+                        continue;
+                    }
+                    if(c==')'){
+                        break;
+                    }
+                    if(flag==false){
+                        tmpname2+=c;
+                    }
+                    else{
+                        character+=c;
+                    }
+                }
+                Debug.Log("character:"+character);
+                GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.transform.GetChild(tmp).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Text>().text=tmpname2;
+                if(character=="wizzard"){
+                    Sprite wizard_small=Resources.Load<Sprite>("image/wizard_small");
+                    GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.transform.GetChild(tmp).gameObject.GetComponent<Image>().sprite=wizard_small;
+                }
+                else if(character=="assistant"){
+                    Sprite assistant_small=Resources.Load<Sprite>("image/assistant_small");
+                    GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.transform.GetChild(tmp).gameObject.GetComponent<Image>().sprite=assistant_small;
+                }
+                else if(character=="assasins"){
+                    Sprite assasins_small=Resources.Load<Sprite>("image/assasins_small");
+                    GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.transform.GetChild(tmp).gameObject.GetComponent<Image>().sprite=assasins_small;
+                }   
+                else if(character=="hunter"){
+                    Sprite hunter_small=Resources.Load<Sprite>("image/hunter_small");
+                    GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.transform.GetChild(tmp).gameObject.GetComponent<Image>().sprite=hunter_small;
+                }
+                // Cmddebug(playername,tmpname2);
+                tmp+=1;
+            }
+        }
+    }
+
+    [Command]
+    public void Cmddebug(string a,string b){
+        Debug.Log("dddddddddddd    "+a+": "+b);
     }
 
     private void initlocalui(){  //初始玩家介面
@@ -249,7 +326,14 @@ public class playerscript : NetworkBehaviour
     private void Cmdsetupplayername(string namevar,Color colorvar){
         playername=namevar;
         playernamecolor=colorvar;
+        Rpcsyncplayername(playername);
     }
+
+    [ClientRpc]
+    private void Rpcsyncplayername(string namevar){
+        playername=namevar;
+    }
+
     [Command]
     public void Cmdplayercount(){ //有新的人加入
         GameObject me=GameObject.Find("ME");
@@ -258,7 +342,7 @@ public class playerscript : NetworkBehaviour
         GameObject ready=GameObject.Find("readytoroom");
         ready.GetComponent<readytoroomscript>().Rpcchangenowplayer(me.GetComponent<playerscript>().playernumber); //更新人數給每個client
 
-        if(me.GetComponent<playerscript>().playernumber==2){ //當人數到達上限 倒數計時
+        if(me.GetComponent<playerscript>().playernumber==4){ //當人數到達上限 倒數計時
             me.GetComponent<playerscript>().readyflag=true;    
         }
         
