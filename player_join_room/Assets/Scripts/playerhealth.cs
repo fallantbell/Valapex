@@ -10,11 +10,16 @@ public class playerhealth : NetworkBehaviour
     public int currenthealth=maxhealth;
     public RectTransform healthbar;
     
+    public bool damageflag=false; //準備階段不會受到傷害
     public void takedamage(int amount,string damageperson){ //  受到傷害
         if(!isServer){
             return;
         }
-        currenthealth-=amount;
+        GameObject me=GameObject.Find("ME");
+        if(me.GetComponent<playerhealth>().damageflag==true){
+            currenthealth-=amount;
+        }
+        
         if(currenthealth<=0){      // 死掉
             recordkill(damageperson);
 

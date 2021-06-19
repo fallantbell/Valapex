@@ -355,6 +355,8 @@ public class playerscript : NetworkBehaviour
         GameObject ready=GameObject.Find("readytoroom");
         ready.GetComponent<readytoroomscript>().Rpchiddenreadyui();  //準備UI 隱藏
 
+        gameObject.GetComponent<playerhealth>().damageflag=true; // 遊戲開始 可以受到傷害
+
         foreach(var players in allplayerlist){
             players.GetComponent<playerscript>().Rpcplayerspawn(); //每個client出生在重生點
         }
