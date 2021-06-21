@@ -9,23 +9,64 @@ public class playerhealth : NetworkBehaviour
     [SyncVar(hook=nameof(changehealth))] //同步血量給所有client
     public int currenthealth=maxhealth;
     public RectTransform healthbar;
-    public void takedamage(int amount){ //  受到傷害
+    
+    public bool damageflag=false; //準備階段不會受到傷害
+    public void takedamage(int amount,string damageperson){ //  受到傷害
         if(!isServer){
             return;
         }
-        currenthealth-=amount;
+        if(gameObject.GetComponent<assistantskill>().shield > 0)
+            gameObject.GetComponent<assistantskill>().shield -= amount;
+        else
+            gameObject.GetComponent<assistantskill>().tempblood -= amount;
+        if(gameObject.GetComponent<assistantskill>().shield < 0)
+        {
+            gameObject.GetComponent<assistantskill>().shield = 0;
+            gameObject.GetComponent<assistantskill>().Rpcshieldstop();
+        }
+        GameObject me=GameObject.Find("ME");
+        if(me.GetComponent<playerhealth>().damageflag==true){
+            currenthealth-=amount;
+        }
+        
         if(currenthealth<=0){      // 死掉
+            recordkill(damageperson);
+
             currenthealth=maxhealth;
             gameObject.GetComponent<playerscript>().Rpcplayerspawn();
             Debug.Log("dead");
         }
         
     }
+
+    private void recordkill(string damageperson){
+        // Debug.Log("damageperson "+damageperson);
+        GameObject allplayer=GameObject.Find("allplayer");
+        List<GameObject> allplayerlist=allplayer.GetComponent<allplayer>().allplayerlist;
+
+        foreach(var players in allplayerlist){  // 尋找射出子彈的人 紀錄擊殺
+            // Debug.Log("players: "+players.name);
+            if(players.name==damageperson){
+                players.GetComponent<playerhealth>().Rpcaddkill(); 
+            }
+        }
+
+    }
     public void changehealth(int oldValue,int newValue){              //改變血條
         healthbar.sizeDelta=new Vector2(newValue,healthbar.sizeDelta.y);
         if(isLocalPlayer){
-            RectTransform localhealthbar=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(3).gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<RectTransform>();
+            RectTransform localhealthbar=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(4).gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<RectTransform>();
             localhealthbar.sizeDelta=new Vector2(newValue,localhealthbar.sizeDelta.y);
+        }
+    }
+
+    [ClientRpc]
+    public void Rpcaddkill(){
+        if(isLocalPlayer){
+            gameObject.GetComponent<playerscript>().addkill();
+        }
+        else{
+            gameObject.GetComponent<playerscript>().synckill();
         }
     }
 }

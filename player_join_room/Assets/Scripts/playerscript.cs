@@ -13,13 +13,18 @@ public class playerscript : NetworkBehaviour
     private Material playermaterialclone;
     public int playernumber=0;
 
+    public List<int> characternum;
+
+    private float tf = 0;
+    private int ti = 0;
+    private bool spawnflag = false;
     private float time_f=0;
     private int time_i=0; //用來計算準備倒數計時時間
     private int timetmp=-1;
     bool readyflag=false; //用來判斷準備開始
 
     [SyncVar(hook = nameof(playernamechange))]
-    private string playername;
+    public string playername;
 
     [SyncVar(hook = nameof(colornamechange))]
     private Color playernamecolor;
@@ -32,6 +37,20 @@ public class playerscript : NetworkBehaviour
 	private AudioListener playerAudioListener;
 
 	private GameObject[] gameObjects;
+
+    public int killnum; //擊殺數
+
+    public Animator anim;
+
+    public void addkill(){
+        killnum+=1;
+        GameObject killtext=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(5).gameObject;
+        killtext.GetComponent<TMP_Text>().text="kill:"+killnum.ToString();
+    }
+
+    public void synckill(){
+        killnum+=1;
+    }
 
     private void playernamechange(string oldstr, string newstr){
         nametext.text=newstr;
@@ -88,6 +107,8 @@ public class playerscript : NetworkBehaviour
             
             initlocalui(); //初始玩家介面
 
+            
+
             var tmpcolor= new Color
             (
                 r: Random.Range(0f,1f),
@@ -101,10 +122,24 @@ public class playerscript : NetworkBehaviour
         }
         GameObject gplayer=GameObject.Find("allplayer");
 		gplayer.GetComponent<allplayer>().allplayerlist.Add(gameObject); //將新增的player存入playerlist
+
+        if(isLocalPlayer){
+            initcharacter(); //初始玩家角色
+        }
+        
     }
     // Update is called once per frame
     void Update()
     {
+        if(spawnflag == true)
+        {
+            tf += Time.deltaTime;
+            ti = (int)tf;
+            if(ti == 10)
+            {
+                playerspawntospace();                
+            }
+        }
         if(!isLocalPlayer){
             GameObject me=GameObject.Find("ME");
             floatinginfo.transform.LookAt(me.transform);
@@ -128,10 +163,135 @@ public class playerscript : NetworkBehaviour
                 }
             }
         }
+        if(Input.GetKeyDown(KeyCode.Tab)){
+            GameObject allplayer=GameObject.Find("allplayer");
+            List<GameObject> allplayerlist=allplayer.GetComponent<allplayer>().allplayerlist; 
+
+            int tmp=0;
+            foreach(var players in allplayerlist){ 
+                if(players.name=="ME") continue;
+                GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.transform.GetChild(tmp).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().text="kill:"+players.GetComponent<playerscript>().killnum;
+                tmp+=1;
+            }
+            GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.SetActive(true);
+        }
+        if(Input.GetKeyUp(KeyCode.Tab)){
+            GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.SetActive(false);
+        }
+    }
+
+    private void initcharacter(){
+        GameObject playerinfo=GameObject.Find("playerinfoobject");
+        string character=playerinfo.GetComponent<savename>().character;
+        if(character=="wizzard"){
+            Cmdcharacter(6);
+        }
+        else if(character=="assistant"){
+            Cmdcharacter(7);
+        }
+        else if(character=="assasins"){
+            Cmdcharacter(8);
+        }
+        else if(character=="hunter"){
+            Cmdcharacter(5);
+        }
+    }
+
+    [Command]
+    public void Cmdcharacter(int num){
+        GameObject me=GameObject.Find("ME");
+        me.GetComponent<playerscript>().characternum.Add(num); //將每個玩家角色存入 me 的characternum 陣列
+        GameObject allplayer=GameObject.Find("allplayer");
+        List<GameObject> allplayerlist=allplayer.GetComponent<allplayer>().allplayerlist; 
+
+        int tmp=0;
+        foreach(var players in allplayerlist){ // 對每個玩家做clientrpc 通知每個玩家的角色
+            players.GetComponent<playerscript>().Rpccharacter(me.GetComponent<playerscript>().characternum[tmp]);
+            tmp+=1;
+        }
+
+        // Rpccharacter(num);
+    }
+
+    [ClientRpc]
+    public void Rpccharacter(int num){
+        // Debug.Log("name:"+gameObject.name);
+        // Debug.Log("number:"+num);
+        gameObject.transform.GetChild(num).gameObject.SetActive(true);
+
+        if(num==5){
+            anim.avatar=Resources.Load<Avatar>("hunter");
+        }
+        else if(num==6){
+            anim.avatar=Resources.Load<Avatar>("wizard");
+        }
+        else if(num==7){
+            anim.avatar=Resources.Load<Avatar>("assistant");
+        }
+        else if(num==8){
+            anim.avatar=Resources.Load<Avatar>("assasins");
+        }
+        
+        if(isLocalPlayer){
+            GameObject allplayer=GameObject.Find("allplayer");
+            List<GameObject> allplayerlist=allplayer.GetComponent<allplayer>().allplayerlist; 
+
+            int tmp=0;
+            foreach(var players in allplayerlist){ 
+                Cmddebug(playername,players.GetComponent<playerscript>().playername);
+                if(players.name=="ME") continue;
+                string tmpname=players.GetComponent<playerscript>().playername;
+                string tmpname2="";
+                string character="";
+                bool flag=false;
+                
+                foreach(char c in tmpname){
+                    if(c=='('){
+                        flag=true;
+                        continue;
+                    }
+                    if(c==')'){
+                        break;
+                    }
+                    if(flag==false){
+                        tmpname2+=c;
+                    }
+                    else{
+                        character+=c;
+                    }
+                }
+                Debug.Log("character:"+character);
+                GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.transform.GetChild(tmp).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Text>().text=tmpname2;
+                if(character=="wizzard"){
+                    Sprite wizard_small=Resources.Load<Sprite>("image/wizard_small");
+                    GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.transform.GetChild(tmp).gameObject.GetComponent<Image>().sprite=wizard_small;
+                }
+                else if(character=="assistant"){
+                    Sprite assistant_small=Resources.Load<Sprite>("image/assistant_small");
+                    GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.transform.GetChild(tmp).gameObject.GetComponent<Image>().sprite=assistant_small;
+                }
+                else if(character=="assasins"){
+                    Sprite assasins_small=Resources.Load<Sprite>("image/assasins_small");
+                    GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.transform.GetChild(tmp).gameObject.GetComponent<Image>().sprite=assasins_small;
+                }   
+                else if(character=="hunter"){
+                    Sprite hunter_small=Resources.Load<Sprite>("image/hunter_small");
+                    GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(6).gameObject.transform.GetChild(tmp).gameObject.GetComponent<Image>().sprite=hunter_small;
+                }
+                // Cmddebug(playername,tmpname2);
+                tmp+=1;
+            }
+        }
+    }
+
+    [Command]
+    public void Cmddebug(string a,string b){
+        Debug.Log("dddddddddddd    "+a+": "+b);
     }
 
     private void initlocalui(){  //初始玩家介面
-        GameObject skill=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(1).gameObject;
+        GameObject skill=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(2).gameObject;
+        GameObject playerimage=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(1).gameObject;
         GameObject skill1=skill.transform.GetChild(0).gameObject;
         GameObject skill2=skill.transform.GetChild(1).gameObject;
         GameObject playerinfo=GameObject.Find("playerinfoobject");
@@ -139,30 +299,38 @@ public class playerscript : NetworkBehaviour
         if(character=="wizzard"){
             Sprite wizzard_skill1=Resources.Load<Sprite>("image/wizzard_skill1");
             Sprite wizzard_skill2=Resources.Load<Sprite>("image/wizzard_skill2");
+            Sprite wizard_small=Resources.Load<Sprite>("image/wizard_small");
             skill1.GetComponent<Image>().sprite=wizzard_skill1;
             skill2.GetComponent<Image>().sprite=wizzard_skill2;
+            playerimage.GetComponent<Image>().sprite=wizard_small;
         }
         else if(character=="assistant"){
             Sprite assistant_skill1=Resources.Load<Sprite>("image/assistant_skill1");
             Sprite assistant_skill2=Resources.Load<Sprite>("image/assistant_skill2");
+            Sprite assistant_small=Resources.Load<Sprite>("image/assistant_small");
             skill1.GetComponent<Image>().sprite=assistant_skill1;
             skill2.GetComponent<Image>().sprite=assistant_skill2;
+            playerimage.GetComponent<Image>().sprite=assistant_small;
         }
         else if(character=="assasins"){
             Sprite assasins_skill1=Resources.Load<Sprite>("image/assasins_skill1");
             Sprite assasins_skill2=Resources.Load<Sprite>("image/assasins_skill2");
+            Sprite assasins_small=Resources.Load<Sprite>("image/assasins_small");
             skill1.GetComponent<Image>().sprite=assasins_skill1;
             skill2.GetComponent<Image>().sprite=assasins_skill2;
+            playerimage.GetComponent<Image>().sprite=assasins_small;
         }
         else if(character=="hunter"){
             Sprite hunter_skill1=Resources.Load<Sprite>("image/hunter_skill1");
             Sprite hunter_skill2=Resources.Load<Sprite>("image/hunter_skill2");
+            Sprite hunter_small=Resources.Load<Sprite>("image/hunter_small");
             skill1.GetComponent<Image>().sprite=hunter_skill1;
             skill2.GetComponent<Image>().sprite=hunter_skill2;
+            playerimage.GetComponent<Image>().sprite=hunter_small;
         }
 
         // 初始玩家名稱
-        GameObject name=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(2).gameObject;
+        GameObject name=GameObject.Find("localplayerUI").transform.GetChild(0).gameObject.transform.GetChild(3).gameObject;
         name.GetComponent<TMP_Text>().text=playerinfo.GetComponent<savename>().username;
     }
 
@@ -170,7 +338,14 @@ public class playerscript : NetworkBehaviour
     private void Cmdsetupplayername(string namevar,Color colorvar){
         playername=namevar;
         playernamecolor=colorvar;
+        Rpcsyncplayername(playername);
     }
+
+    [ClientRpc]
+    private void Rpcsyncplayername(string namevar){
+        playername=namevar;
+    }
+
     [Command]
     public void Cmdplayercount(){ //有新的人加入
         GameObject me=GameObject.Find("ME");
@@ -179,7 +354,7 @@ public class playerscript : NetworkBehaviour
         GameObject ready=GameObject.Find("readytoroom");
         ready.GetComponent<readytoroomscript>().Rpcchangenowplayer(me.GetComponent<playerscript>().playernumber); //更新人數給每個client
 
-        if(me.GetComponent<playerscript>().playernumber==2){ //當人數到達上限 倒數計時
+        if(me.GetComponent<playerscript>().playernumber==4){ //當人數到達上限 倒數計時
             me.GetComponent<playerscript>().readyflag=true;    
         }
         
@@ -192,20 +367,50 @@ public class playerscript : NetworkBehaviour
         GameObject ready=GameObject.Find("readytoroom");
         ready.GetComponent<readytoroomscript>().Rpchiddenreadyui();  //準備UI 隱藏
 
+        gameObject.GetComponent<playerhealth>().damageflag=true; // 遊戲開始 可以受到傷害
+
         foreach(var players in allplayerlist){
             players.GetComponent<playerscript>().Rpcplayerspawn(); //每個client出生在重生點
         }
     }
-    [ClientRpc]
-    public void Rpcplayerspawn(){ 
-        if(isLocalPlayer){
-            CharacterController cc = GetComponent(typeof(CharacterController)) as CharacterController;
-            cc.enabled = false;     
+    public void playerspawntospace(){
+        if(isLocalPlayer)
+        {
+            CharacterController cc = GetComponent(typeof(CharacterController)) as CharacterController;   
             Transform spawn=NetworkManager.singleton.GetStartPosition();
             transform.position=spawn.position;
             transform.rotation=spawn.rotation;
-            Debug.Log("x="+transform.position.x+" y="+transform.position.y+" z="+transform.position.z);
+            GameObject me=GameObject.Find("ME");
+            me.transform.GetChild(3).gameObject.SetActive(true);
+            gameObject.GetComponent<FirstPersonController>().enabled = true;
+            gameObject.GetComponent<assistantskill>().enabled = true;
+            gameObject.GetComponent<hunterskill>().enabled = true;
+            gameObject.GetComponent<WeaponManager>().enabled = true;
+            gameObject.GetComponent<GunSystem>().enabled = true;
             cc.enabled=true;
+            spawnflag = false;
+            tf = 0;
+            
+        }
+        
+    }
+    [ClientRpc]
+    public void Rpcplayerspawn(){ 
+        if(isLocalPlayer){
+            GameObject me=GameObject.Find("ME");
+            me.transform.GetChild(3).gameObject.SetActive(false);
+            gameObject.GetComponent<FirstPersonController>().enabled = false;
+            gameObject.GetComponent<assistantskill>().enabled = false;
+            gameObject.GetComponent<hunterskill>().enabled = false;
+            gameObject.GetComponent<WeaponManager>().enabled = false;
+            gameObject.GetComponent<GunSystem>().enabled = false;
+            CharacterController cc = GetComponent(typeof(CharacterController)) as CharacterController;
+            spawnflag = true;
+            tf = 0;
+            cc.enabled = false;     
+            Transform spawn=NetworkManager.singleton.GetStartPosition();
+            transform.position=new Vector3(-36,2,-60);
+            transform.rotation=spawn.rotation;
         }
     }
 

@@ -69,6 +69,7 @@ public class GunSystem : NetworkBehaviour
         Debug.Log(instance.name);
         instance.name = "AssaultRifle"; // <=======給與子彈名稱 之後根據名稱決定傷害
         
+        instance.GetComponent<CannonballController>().damageperson=gameObject.name;
         // Debug.Log(gunType.name);
 
         //Let's position it at the player

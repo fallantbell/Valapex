@@ -78,6 +78,20 @@ public class skillscript : MonoBehaviour
         if(character=="assasins"){ // 分身
             me.GetComponent<playerscript>().Cmdduplicate(); // 同步分身到所有client
         }
+        if(character == "assistant")
+        {
+            me.GetComponent<assistantskill>().Cmdaddhealth(30);
+        }
+        if(character == "hunter")
+        {
+            me.GetComponent<hunterskill>().changelight();
+            GameObject g=GameObject.Find("allplayer");
+            foreach(GameObject player in g.GetComponent<allplayer>().allplayerlist)
+            {
+                player.GetComponent<changeMaterial>().enabled=true;
+            }
+
+        }
     }
     private void useskill2(){
         GameObject playerinfo=GameObject.Find("playerinfoobject");
@@ -88,6 +102,14 @@ public class skillscript : MonoBehaviour
             me.GetComponent<playerscript>().Cmdghost(1); // 同步殘影到所有client
             teleport_f=0;
             teleportflag=true;
+        }
+        if(character == "assistant")
+        {           
+            me.GetComponent<assistantskill>().Cmdaddshield(30);
+        }
+        if(character == "hunter")
+        {
+            me.GetComponent<hunterskill>().Cmdsettrap();
         }
     }
 }
